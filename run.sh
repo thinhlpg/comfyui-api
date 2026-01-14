@@ -51,6 +51,9 @@ mkdir -p "${MODEL_DIR/#\~/$HOME}/checkpoints" \
          "${MODEL_DIR/#\~/$HOME}/embeddings" \
          "${MODEL_DIR/#\~/$HOME}/upscale_models" \
          "${MODEL_DIR/#\~/$HOME}/clip" \
+         "${MODEL_DIR/#\~/$HOME}/clip_vision" \
+         "${MODEL_DIR/#\~/$HOME}/text_encoders" \
+         "${MODEL_DIR/#\~/$HOME}/diffusion_models" \
          "${MODEL_DIR/#\~/$HOME}/unet"
 
 echo -e "${GREEN}✓ Directories created${NC}"
