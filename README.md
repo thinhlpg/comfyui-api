@@ -95,6 +95,17 @@ bash test-z-image-turbo.sh http://localhost:3001
 bash test-jan-infographic.sh http://localhost:3001 1920 1088
 ```
 
+## Available Workflows
+
+All workflows are stored in `workflows/` directory:
+
+| Workflow | Description | Resolution |
+|----------|-------------|------------|
+| `z-image-turbo.json` | Basic Z-Image Turbo workflow | 1024x1024 |
+| `z-image-turbo-1920x1088.json` | High resolution workflow | 1920x1088 |
+| `z-image-turbo-jan-infographic.json` | Jan infographic prompt (no LoRA) | 1920x1088 |
+| `z-image-turbo-with-lora.json` | With Jan Infographic LoRA | 1024x1024 |
+
 ## API Usage
 
 **API có sẵn, không cần code wrapper.** Chỉ cần gọi HTTP endpoint.
