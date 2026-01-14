@@ -91,7 +91,7 @@ for i in $(seq 1 $RUNS); do
             "class_type": "KSampler",
             "inputs": {
               "seed": ($seed | tonumber),
-              "steps": 4,
+                               "steps": 8,
               "cfg": 1.0,
               "sampler_name": "res_multistep",
               "scheduler": "simple",

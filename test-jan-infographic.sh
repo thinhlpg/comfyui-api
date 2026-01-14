@@ -74,7 +74,7 @@ PAYLOAD=$(jq -n \
         "class_type": "KSampler",
         "inputs": {
           "seed": 42,
-          "steps": 4,
+                               "steps": 8,
           "cfg": 1.0,
           "sampler_name": "res_multistep",
           "scheduler": "simple",

@@ -72,7 +72,7 @@ bash run.sh
 5. CLIPTextEncode
 6. ConditioningZeroOut
 7. EmptySD3LatentImage
-8. KSampler (4 steps, `res_multistep`, `simple`)
+8. KSampler (8 steps, `res_multistep`, `simple`)
 9. VAEDecode
 10. SaveImage
 
