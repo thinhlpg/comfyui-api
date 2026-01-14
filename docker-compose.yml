@@ -1,0 +1,39 @@
+services:
+  comfyui-api:
+    image: ghcr.io/saladtechnologies/comfyui-api:comfy0.8.2-api1.17.0-torch2.8.0-cuda12.8-runtime
+    container_name: comfyui-api
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+      - "8188:8188"
+    environment:
+      - PORT=3000
+      - LOG_LEVEL=info
+      - COMFY_HOME=/opt/ComfyUI
+      - MODEL_DIR=/opt/ComfyUI/models
+      - OUTPUT_DIR=/opt/ComfyUI/output
+      - INPUT_DIR=/opt/ComfyUI/input
+      - LRU_CACHE_SIZE_GB=50
+      - CACHE_DIR=/cache
+      - HF_TOKEN=${HF_TOKEN}
+      - ALWAYS_RESTART_COMFYUI=true
+      - MAX_BODY_SIZE_MB=200
+    volumes:
+      - ${MODEL_DIR:-./models}:/opt/ComfyUI/models
+      - ${OUTPUT_DIR:-./output}:/opt/ComfyUI/output
+      - ${INPUT_DIR:-./input}:/opt/ComfyUI/input
+      - ${CACHE_DIR:-./cache}:/cache
+      - ${CUSTOM_NODES_DIR:-./custom_nodes}:/opt/ComfyUI/custom_nodes
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
