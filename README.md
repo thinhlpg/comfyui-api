@@ -97,15 +97,77 @@ bash test-jan-infographic.sh http://localhost:3001 1920 1088
 
 ## API Usage
 
-### Submit Workflow
+**API có sẵn, không cần code wrapper.** Chỉ cần gọi HTTP endpoint.
+
+### Quick Start
+
+```bash
+# Method 1: Dùng workflow JSON đã lưu
+curl -X POST http://localhost:3001/prompt \
+  -H "Content-Type: application/json" \
+  -d @workflows/z-image-turbo.json \
+  -o response.json
+
+# Decode base64 image từ response
+jq -r '.images[0]' response.json | base64 -d > output.png
+```
+
+### Response Format
+
+```json
+{
+  "id": "uuid",
+  "images": ["base64-encoded-image-string"],
+  "filenames": ["output-filename.png"],
+  "stats": { ... }
+}
+```
+
+### Swagger Documentation
+
+Xem tất cả endpoints và test trực tiếp tại:
+- **Swagger UI**: `http://localhost:3001/docs`
+- **OpenAPI Spec**: `http://localhost:3001/docs/json`
+
+### Example: Python Client
+
+```python
+import requests
+import base64
+import json
+
+API_URL = "http://localhost:3001"
+
+# Load workflow
+with open("workflows/z-image-turbo.json") as f:
+    workflow = json.load(f)
+
+# Update prompt
+workflow["5"]["inputs"]["text"] = "Your custom prompt here"
+
+# Submit
+response = requests.post(
+    f"{API_URL}/prompt",
+    json={"prompt": workflow}
+)
+
+result = response.json()
+image_base64 = result["images"][0]
+
+# Save image
+image_data = base64.b64decode(image_base64)
+with open("output.png", "wb") as f:
+    f.write(image_data)
+```
+
+### Example: curl với inline JSON
 
 ```bash
 curl -X POST http://localhost:3001/prompt \
   -H "Content-Type: application/json" \
-  -d @workflow.json
+  -d '{"prompt": {...}}' \
+  -o response.json
 ```
-
-Response contains base64-encoded image in `.images[0]` field.
 
 ### Dynamic Model Loading
 
