@@ -91,12 +91,10 @@ bash run.sh
 
 ### Testing
 
-```bash
-# Simple test
-bash test-z-image-turbo.sh http://localhost:3001
+Use the workflows in `workflows/` with `curl` or the example script:
 
-# Custom resolution
-bash test-jan-infographic.sh http://localhost:3001 1920 1088
+```bash
+bash examples/use-api.sh http://localhost:3001
 ```
 
 ## Available Workflows
@@ -108,7 +106,8 @@ All workflows are stored in `workflows/` directory:
 | `z-image-turbo.json` | Basic Z-Image Turbo workflow | 1024x1024 |
 | `z-image-turbo-1920x1088.json` | High resolution workflow | 1920x1088 |
 | `z-image-turbo-jan-infographic.json` | Jan infographic prompt (no LoRA) | 1920x1088 |
-| `z-image-turbo-with-lora.json` | With Jan Infographic LoRA | 1024x1024 |
+| `z-image-turbo-with-lora.json` | With Jan Infographic LoRA (basic prompt) | 1024x1024 |
+| `z-image-turbo-jan-infographic-with-lora.json` | Jan infographic + LoRA | 1920x1088 |
 
 ## API Usage
 
