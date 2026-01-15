@@ -78,12 +78,16 @@ bash run.sh
 
 ### Performance
 
-| Resolution | Simple Prompt | Complex Prompt |
-|------------|---------------|----------------|
-| 1024×1024 | 1.67s avg (0.60 img/s) | 1.83s avg (0.55 img/s) |
-| 1920×1088 | 4.25s | 4.25s |
+**With Normal VRAM Mode** (RTX 5090, 32GB VRAM):
 
-First run includes model loading overhead.
+| Resolution | Workflow | Average | Range | Throughput |
+|------------|----------|---------|-------|------------|
+| 1024×1024 | Simple prompt | 1.67s | - | 0.60 img/s |
+| 1024×1024 | Complex prompt | 1.83s | - | 0.55 img/s |
+| 1024×1024 | With LoRA | 7.30s | 7.18s-7.49s | 0.14 img/s |
+| 1920×1088 | With LoRA | 7.30s | 7.18s-7.49s | 0.14 img/s |
+
+**Note**: First run includes model loading overhead. Normal VRAM mode (`--normalvram`) is enabled by default for better performance and stability. Low VRAM mode caused inconsistent timing (12-24s range).
 
 ### Testing
 
