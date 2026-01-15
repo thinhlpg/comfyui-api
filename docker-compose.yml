@@ -18,6 +18,9 @@ services:
       - HF_TOKEN=${HF_TOKEN}
       - ALWAYS_RESTART_COMFYUI=true
       - MAX_BODY_SIZE_MB=200
+      # Disable low VRAM mode - use normal VRAM mode for better performance
+      # RTX 5090 has 32GB VRAM, so we can use normalvram mode
+      - CMD=python main.py --normalvram --listen 0.0.0.0
     volumes:
       - ${MODEL_DIR:-./models}:/opt/ComfyUI/models
       - ${OUTPUT_DIR:-./output}:/opt/ComfyUI/output
