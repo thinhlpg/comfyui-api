@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comfyui-api
+  labels:
+    app: comfyui-api
+spec:
+  replicas: 2  # Adjust based on available GPUs and load
+  selector:
+    matchLabels:
+      app: comfyui-api
+  template:
+    metadata:
+      labels:
+        app: comfyui-api
+    spec:
+      containers:
+      - name: comfyui-api
+        image: ghcr.io/saladtechnologies/comfyui-api:comfy0.8.2-api1.17.0-torch2.8.0-cuda12.8-runtime
+        ports:
+        - containerPort: 3000
+          name: http
+        - containerPort: 8188
+          name: comfyui
+        env:
+        - name: PORT
+          value: "3000"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: COMFY_HOME
+          value: "/opt/ComfyUI"
+        - name: MODEL_DIR
+          value: "/opt/ComfyUI/models"
+        - name: OUTPUT_DIR
+          value: "/opt/ComfyUI/output"
+        - name: INPUT_DIR
+          value: "/opt/ComfyUI/input"
+        - name: LRU_CACHE_SIZE_GB
+          value: "50"
+        - name: CACHE_DIR
+          value: "/cache"
+        - name: ALWAYS_RESTART_COMFYUI
+          value: "true"
+        - name: MAX_BODY_SIZE_MB
+          value: "200"
+        - name: CMD
+          value: "python main.py --normalvram --listen 0.0.0.0"
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: comfyui-secrets
+              key: hf-token
+              optional: true
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            memory: "32Gi"
+            cpu: "8"
+          requests:
+            nvidia.com/gpu: 1
+            memory: "16Gi"
+            cpu: "4"
+        volumeMounts:
+        - name: models
+          mountPath: /opt/ComfyUI/models
+          readOnly: true
+        - name: output
+          mountPath: /opt/ComfyUI/output
+        - name: input
+          mountPath: /opt/ComfyUI/input
+        - name: cache
+          mountPath: /cache
+        - name: custom-nodes
+          mountPath: /opt/ComfyUI/custom_nodes
+          optional: true
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: comfyui-models
+      - name: output
+        emptyDir: {}
+      - name: input
+        emptyDir: {}
+      - name: cache
+        emptyDir:
+          sizeLimit: 50Gi
+      - name: custom-nodes
+        persistentVolumeClaim:
+          claimName: comfyui-custom-nodes
+          optional: true

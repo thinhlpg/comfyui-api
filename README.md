@@ -1,11 +1,11 @@
-# ComfyUI API - Homelab Deployment
+# ComfyUI API
 
 Stateless, horizontally-scalable API wrapper for ComfyUI.
 
 **Image**: `ghcr.io/saladtechnologies/comfyui-api:comfy0.8.2-api1.17.0-torch2.8.0-cuda12.8-runtime`
 
-- PyTorch: 2.8.0 (≥2.7 required for SM120/Blackwell)
-- CUDA: 12.8 (compatible with driver 590.48.01)
+- PyTorch: 2.8.0
+- CUDA: 12.8
 - ComfyUI: 0.8.2
 - API: 1.17.0
 
@@ -14,10 +14,11 @@ Stateless, horizontally-scalable API wrapper for ComfyUI.
 ## Deployment
 
 ```bash
-ssh homelab
-cd ~/code/comfyui-api
+cd comfyui-api
 bash run.sh
 ```
+
+See [Scaling Guide](docs/scaling.md) for single-node multi-GPU and multi-node Kubernetes deployments.
 
 ## Endpoints
 
@@ -76,18 +77,7 @@ bash run.sh
 9. VAEDecode
 10. SaveImage
 
-### Performance
-
-**With Normal VRAM Mode** (RTX 5090, 32GB VRAM):
-
-| Resolution | Workflow | Average | Range | Throughput |
-|------------|----------|---------|-------|------------|
-| 1024×1024 | Simple prompt | 1.67s | - | 0.60 img/s |
-| 1024×1024 | Complex prompt | 1.83s | - | 0.55 img/s |
-| 1024×1024 | With LoRA | 7.30s | 7.18s-7.49s | 0.14 img/s |
-| 1920×1088 | With LoRA | 7.30s | 7.18s-7.49s | 0.14 img/s |
-
-**Note**: First run includes model loading overhead. Normal VRAM mode (`--normalvram`) is enabled by default for better performance and stability. Low VRAM mode caused inconsistent timing (12-24s range).
+**Note**: First run includes model loading overhead. Normal VRAM mode (`--normalvram`) is enabled by default for better performance and stability.
 
 ### Testing
 
@@ -198,17 +188,54 @@ Models can be loaded from URLs:
 
 Models are automatically downloaded and cached (50GB LRU cache).
 
+## Scaling
+
+ComfyUI API is stateless and horizontally scalable. See [Scaling Guide](docs/scaling.md) for:
+
+- Single-node multi-GPU scaling with Docker Compose
+- Multi-node scaling with Kubernetes
+- Health checks and monitoring
+
+## For Infrastructure Team
+
+**Quick Deploy:**
+```bash
+# Docker Compose
+cp env.example .env && # Edit .env with HF_TOKEN
+bash run.sh
+
+# Kubernetes
+kubectl apply -f k8s/
+```
+
+**Prerequisites:**
+- Docker/Kubernetes with GPU support
+- Shared storage for `models/` directory
+- `HF_TOKEN` environment variable
+
+**Key Files:**
+- `docker-compose.yml` - Single-node deployment
+- `k8s/` - Kubernetes manifests
+- `docs/scaling.md` - Scaling strategies
+- `docs/deployment-flow.md` - **Deployment flow, connections, disk layout**
+- `env.example` - Configuration template
+
+**Health Checks:**
+- `GET /health` - Liveness
+- `GET /ready` - Readiness
+- `bash scripts/health-check.sh http://localhost:3001`
+
 ## Management
 
 ```bash
 # View logs
-docker compose -f ~/code/comfyui-api/docker-compose.yml logs -f
+docker compose logs -f
 
 # Stop
-docker compose -f ~/code/comfyui-api/docker-compose.yml down
+docker compose down
 
 # Restart
-docker compose -f ~/code/comfyui-api/docker-compose.yml restart
+docker compose restart
 
 # Container shell
 docker exec -it comfyui-api bash
@@ -238,16 +265,11 @@ docker compose up -d
 ### Models Not Found
 
 ```bash
-# Verify host models
-ls -la ~/data/comfyui/models/{text_encoders,diffusion_models,vae}/
-
 # Verify container access
 docker exec comfyui-api ls -la /opt/ComfyUI/models/{text_encoders,diffusion_models,vae}/
 
-# Copy if missing
-cp -l ~/code/comfyui/ComfyUI/models/text_encoders/qwen_3_4b.safetensors ~/data/comfyui/models/text_encoders/
-cp -l ~/code/comfyui/ComfyUI/models/diffusion_models/z_image_turbo_bf16.safetensors ~/data/comfyui/models/diffusion_models/
-cp -l ~/code/comfyui/ComfyUI/models/vae/ae.safetensors ~/data/comfyui/models/vae/
+# Check volume mounts in docker-compose.yml
+docker compose config | grep -A 5 volumes
 ```
 
 ### Port Conflict
