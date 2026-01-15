@@ -18,8 +18,8 @@ services:
       - HF_TOKEN=${HF_TOKEN}
       - ALWAYS_RESTART_COMFYUI=true
       - MAX_BODY_SIZE_MB=200
-      # Use normal VRAM mode for better performance and stability
-      - CMD=python main.py --normalvram --listen 0.0.0.0
+      # Use high VRAM mode to keep models loaded in memory (no unloading between requests)
+      - CMD=python main.py --highvram --listen 0.0.0.0
     volumes:
       - ${MODEL_DIR:-./models}:/opt/ComfyUI/models
       - ${OUTPUT_DIR:-./output}:/opt/ComfyUI/output
